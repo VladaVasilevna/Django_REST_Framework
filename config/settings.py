@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     "lms",
     "rest_framework",
     "rest_framework.authtoken",
+    "django_filters",
 ]
 
 MIDDLEWARE = [
