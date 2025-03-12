@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
@@ -19,3 +20,41 @@ class User(AbstractUser):
     class Meta:
         verbose_name = "Пользователь"
         verbose_name_plural = "Пользователи"
+
+
+class Payment(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="Пользователь"
+    )
+    payment_date = models.DateField(verbose_name="Дата оплаты")
+    paid_course = models.ForeignKey(
+        "lms.Course",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name="Оплаченный курс",
+    )
+    paid_lesson = models.ForeignKey(
+        "lms.Lesson",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name="Оплаченный урок",
+    )
+    payment_amount = models.DecimalField(
+        max_digits=10, decimal_places=2, verbose_name="Сумма оплаты"
+    )
+    PAYMENT_METHODS = (
+        ("cash", "Наличные"),
+        ("transfer", "Перевод на счет"),
+    )
+    payment_method = models.CharField(
+        max_length=10, choices=PAYMENT_METHODS, verbose_name="Способ оплаты"
+    )
+
+    def __str__(self):
+        return f"Платеж {self.user} на сумму {self.payment_amount}"
+
+    class Meta:
+        verbose_name = "Платеж"
+        verbose_name_plural = "Платежи"
