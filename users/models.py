@@ -4,6 +4,8 @@ from django.db import models
 
 
 class User(AbstractUser):
+    """Модель пользователя, расширяет стандартную модель User."""
+
     email = models.EmailField(unique=True)
     phone = models.CharField(max_length=15, blank=True, null=True)
     city = models.CharField(max_length=100, blank=True, null=True)
@@ -15,6 +17,7 @@ class User(AbstractUser):
     USERNAME_FIELD = "email"  # Авторизация через email вместо username
 
     def __str__(self):
+        """Возвращает email пользователя."""
         return self.email
 
     class Meta:
@@ -23,6 +26,8 @@ class User(AbstractUser):
 
 
 class Payment(models.Model):
+    """Хранит информацию о платеже, включая дату, сумму и метод оплаты."""
+
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="Пользователь"
     )
@@ -53,6 +58,7 @@ class Payment(models.Model):
     )
 
     def __str__(self):
+        """Возвращает информацию о платеже."""
         return f"Платеж {self.user} на сумму {self.payment_amount}"
 
     class Meta:
