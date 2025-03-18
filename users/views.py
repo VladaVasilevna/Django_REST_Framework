@@ -1,13 +1,13 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, generics, status
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 
-from users.permissions import IsOwnerOrModer
+from users.permissions import IsOwner
 
 from .filters import PaymentFilter
 from .models import Payment, User
@@ -21,7 +21,7 @@ class UserProfileUpdateView(generics.RetrieveUpdateAPIView):
     queryset = User.objects.all()
     permission_classes = [
         IsAuthenticated,
-        IsOwnerOrModer,
+        IsOwner,
     ]  # Только владелец может редактировать свой профиль
 
     def get_serializer_class(self):
@@ -29,7 +29,7 @@ class UserProfileUpdateView(generics.RetrieveUpdateAPIView):
         if self.request.method == "GET":
             return PublicUserProfileSerializer  # Для просмотра общедоступной информации
         else:
-            return UserProfileSerializer  # Для редактирования полного профиля
+            return UserProfileSerializer  # Для редактирования своего профиля
 
     def get_object(self):
         """Возвращает профиль текущего пользователя."""
@@ -59,6 +59,8 @@ class PaymentListView(generics.ListAPIView):
 
 class RegisterView(APIView):
     """Контроллер для регистрации пользователя."""
+
+    permission_classes = [AllowAny]
 
     def post(self, request):
         """Обрабатывает POST-запрос для регистрации пользователя."""
@@ -108,7 +110,7 @@ class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = User.objects.all()
     serializer_class = UserProfileSerializer
     # Только владелец может редактировать или удалять свой профиль
-    permission_classes = [IsAuthenticated, IsOwnerOrModer]
+    permission_classes = [IsAuthenticated, IsOwner]
 
     def get_object(self):
         """Возвращает объект профиля и проверяет права доступа."""

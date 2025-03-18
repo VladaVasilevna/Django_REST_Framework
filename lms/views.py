@@ -1,7 +1,7 @@
 from rest_framework import generics, viewsets
 from rest_framework.permissions import IsAuthenticated
 
-from users.permissions import IsOwnerOrModer
+from users.permissions import IsModer, IsOwner
 
 from .models import Course, Lesson
 from .serializers import CourseSerializer, LessonSerializer
@@ -18,13 +18,13 @@ class CourseViewSet(viewsets.ModelViewSet):
         if self.action in ["create", "destroy"]:
             permission_classes = [
                 IsAuthenticated,
-                IsOwnerOrModer,
-            ]  # Только модераторы могут создавать и удалять курсы
+                IsOwner,
+            ]  # Только владельцы могут создавать и удалять курсы
         elif self.action in ["update", "partial_update", "retrieve", "list"]:
-            # Любой авторизованный пользователь может просматривать и редактировать курсы
-            permission_classes = [IsAuthenticated]
+            # Владелец или модератор могут просматривать и редактировать курсы
+            permission_classes = [IsAuthenticated, IsOwner | IsModer]
         else:
-            permission_classes = [IsAuthenticated, IsOwnerOrModer]
+            permission_classes = [IsAuthenticated, IsOwner]
         return [permission() for permission in permission_classes]
 
     def perform_create(self, serializer):
@@ -39,8 +39,8 @@ class LessonListCreate(generics.ListCreateAPIView):
     serializer_class = LessonSerializer
     permission_classes = [
         IsAuthenticated,
-        IsOwnerOrModer,
-    ]  # Только модераторы могут создавать уроки
+        IsOwner,
+    ]  # Только владелец может создавать уроки
 
     def perform_create(self, serializer):
         """Привязывает урок к создавшему его пользователю."""
@@ -52,11 +52,19 @@ class LessonDetail(generics.RetrieveUpdateDestroyAPIView):
 
     queryset = Lesson.objects.all()  # Получение всех уроков
     serializer_class = LessonSerializer
-    # Только владельцы или модераторы могут редактировать/удалять уроки
-    permission_classes = [IsAuthenticated, IsOwnerOrModer]
+    permission_classes = [IsAuthenticated]
+
+    def get_permissions(self):
+        """Динамически определяем права для каждого действия"""
+        if self.request.method in ["PUT", "PATCH", "GET"]:  # Редактирование и просмотр
+            permission_classes = [IsAuthenticated, IsOwner | IsModer]
+        elif self.request.method == "DELETE":  # Удаление
+            permission_classes = [IsAuthenticated, IsOwner]
+        else:
+            permission_classes = [IsAuthenticated]
+        return [permission() for permission in permission_classes]
 
     def get_object(self):
-        """Возвращает объект урока и проверяет права доступа."""
         obj = super().get_object()
         self.check_object_permissions(self.request, obj)
         return obj
