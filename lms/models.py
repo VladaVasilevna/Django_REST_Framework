@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.db import models
+from django.contrib.auth.models import User
 
 
 class Course(models.Model):
@@ -49,3 +50,18 @@ class Lesson(models.Model):
     class Meta:
         verbose_name = "Урок"
         verbose_name_plural = "Уроки"
+
+
+class CourseSubscription(models.Model):
+    """Модель подписки на курс."""
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="Пользователь")
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, verbose_name="Курс")
+
+    def __str__(self):
+        """Возвращает информацию о подписке."""
+        return f"{self.user.username} на курс {self.course.title}"
+
+    class Meta:
+        verbose_name = "Подписка на курс"
+        verbose_name_plural = "Подписки на курсы"
+        unique_together = ("user", "course")  # Уникальность подписки для пользователя и курса
