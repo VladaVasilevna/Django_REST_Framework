@@ -1,7 +1,8 @@
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
-from .views import CourseViewSet, LessonDetail, LessonListCreate
+from .views import (CourseSubscriptionView, CourseViewSet, LessonDetail,
+                    LessonListCreate)
 
 router = DefaultRouter()
 router.register(r"courses", CourseViewSet)  # Регистрация ViewSet для курса
@@ -14,4 +15,5 @@ urlpatterns = [
     path(
         "lessons/<int:pk>/", LessonDetail.as_view(), name="lesson-detail"
     ),  # Получение, изменение и удаление урока
+    path("subscriptions/", CourseSubscriptionView.as_view(), name="subscription"),
 ]
