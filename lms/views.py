@@ -1,21 +1,19 @@
-from rest_framework import generics, viewsets
+from django.shortcuts import get_object_or_404
+from rest_framework import generics, status, viewsets
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from users.permissions import IsModer, IsOwner
 
-from .models import Course, Lesson
-from .serializers import CourseSerializer, LessonSerializer
-
-from rest_framework import status
-from rest_framework.response import Response
-from rest_framework.views import APIView
-from django.shortcuts import get_object_or_404
-from .models import Course, CourseSubscription
+from .models import Course, CourseSubscription, Lesson
 from .paginators import LessonCoursePagination
+from .serializers import CourseSerializer, LessonSerializer
 
 
 class CourseViewSet(viewsets.ModelViewSet):
     """ViewSet для модели Course, позволяет выполнять CRUD-операции."""
+
     pagination_class = LessonCoursePagination
     queryset = Course.objects.all()  # Получение всех курсов
     serializer_class = CourseSerializer
@@ -39,11 +37,12 @@ class CourseViewSet(viewsets.ModelViewSet):
         serializer.save(owner=self.request.user)
 
     def get_serializer_context(self):
-        return {'request': self.request}
+        return {"request": self.request}
 
 
 class LessonListCreate(generics.ListCreateAPIView):
     """Generic-класс для создания и просмотра уроков."""
+
     pagination_class = LessonCoursePagination
     queryset = Lesson.objects.all()  # Получение всех уроков
     serializer_class = LessonSerializer
@@ -82,25 +81,39 @@ class LessonDetail(generics.RetrieveUpdateDestroyAPIView):
 
 class CourseSubscriptionView(APIView):
     """Контроллер для управления подпиской на курс."""
+
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
         try:
             user = request.user
-            course_id = int(request.data.get("course_id"))
-            if not course_id:
-                return Response({"error": "course_id is required"}, status=status.HTTP_400_BAD_REQUEST)
+            course_id_raw = request.data.get("course_id")
+            if not course_id_raw:
+                return Response(
+                    {"error": "course_id is required"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            try:
+                course_id = int(course_id_raw)
+            except (ValueError, TypeError):
+                return Response(
+                    {"error": "course_id must be an integer"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
             course = get_object_or_404(Course, pk=course_id)
 
             subs_item = CourseSubscription.objects.filter(user=user, course=course)
 
             if subs_item.exists():
                 subs_item.delete()
-                message = 'Подписка удалена'
+                message = "Подписка удалена"
             else:
                 CourseSubscription.objects.create(user=user, course=course)
-                message = 'Подписка добавлена'
+                message = "Подписка добавлена"
 
             return Response({"message": message}, status=status.HTTP_200_OK)
         except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(
+                {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
