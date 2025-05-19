@@ -42,5 +42,5 @@ class CustomUserAdmin(UserAdmin):
 
 @admin.register(Payment)
 class PaymentAdmin(admin.ModelAdmin):
-    list_display = ("user", "payment_date", "payment_amount", "payment_method")
+    list_display = ("user", "payment_date", "amount", "payment_method")
     list_filter = ("payment_method", "payment_date")
