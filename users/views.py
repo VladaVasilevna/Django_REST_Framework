@@ -11,8 +11,12 @@ from users.permissions import IsOwner
 
 from .filters import PaymentFilter
 from .models import Payment, User
-from .serializers import (PaymentSerializer, PublicUserProfileSerializer,
-                          RegisterSerializer, UserProfileSerializer)
+from .serializers import (
+    PaymentSerializer,
+    PublicUserProfileSerializer,
+    RegisterSerializer,
+    UserProfileSerializer,
+)
 
 
 class UserProfileUpdateView(generics.RetrieveUpdateAPIView):
