@@ -30,6 +30,7 @@ INSTALLED_APPS = [
     "users",
     "lms",
     "django_filters",
+    "django_celery_beat",
 ]
 
 MIDDLEWARE = [
@@ -148,6 +149,4 @@ CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = TIME_ZONE
-
-# Настройки для celery-beat
-INSTALLED_APPS += ["django_celery_beat"]
+CELERY_ENABLE_UTC = True
