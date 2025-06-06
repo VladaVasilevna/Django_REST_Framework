@@ -1,4 +1,5 @@
 import stripe
+
 from config.settings import STRIPE_SECRET_KEY
 
 stripe.api_key = STRIPE_SECRET_KEY  # ключ из .env и settings.py

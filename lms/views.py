@@ -9,9 +9,6 @@ from users.permissions import IsModer, IsOwner
 from .models import Course, CourseSubscription, Lesson
 from .paginators import LessonCoursePagination
 from .serializers import CourseSerializer, LessonSerializer
-from datetime import timedelta
-from django.utils.timezone import now
-from .tasks import send_course_update_email
 
 
 class CourseViewSet(viewsets.ModelViewSet):
@@ -41,15 +38,6 @@ class CourseViewSet(viewsets.ModelViewSet):
 
     def get_serializer_context(self):
         return {"request": self.request}
-
-    def perform_update(self, serializer):
-        """Проверяет, когда последний раз обновлялся курс."""
-        course = serializer.save()
-
-        last_update = course.updated_at
-        if last_update is None or (now() - last_update) > timedelta(hours=4):
-            # Запускаем асинхронную задачу отправки email
-            send_course_update_email.delay(course.id)
 
 
 class LessonListCreate(generics.ListCreateAPIView):
@@ -90,14 +78,6 @@ class LessonDetail(generics.RetrieveUpdateDestroyAPIView):
         self.check_object_permissions(self.request, obj)
         return obj
 
-    def perform_update(self, serializer):
-        lesson = serializer.save()
-        course = lesson.course
-        if course:
-            last_update = course.updated_at
-            if last_update is None or (now() - last_update) > timedelta(hours=4):
-                send_course_update_email.delay(course.id)
-
 
 class CourseSubscriptionView(APIView):
     """Контроллер для управления подпиской на курс."""
@@ -107,20 +87,12 @@ class CourseSubscriptionView(APIView):
     def post(self, request):
         try:
             user = request.user
-            course_id_raw = request.data.get("course_id")
-            if not course_id_raw:
+            course_id = int(request.data.get("course_id"))
+            if not course_id:
                 return Response(
                     {"error": "course_id is required"},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
-            try:
-                course_id = int(course_id_raw)
-            except (ValueError, TypeError):
-                return Response(
-                    {"error": "course_id must be an integer"},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-
             course = get_object_or_404(Course, pk=course_id)
 
             subs_item = CourseSubscription.objects.filter(user=user, course=course)

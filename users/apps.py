@@ -7,4 +7,5 @@ class UsersConfig(AppConfig):
 
     def ready(self):
         from users.tasks import setup_periodic_tasks
+
         setup_periodic_tasks()

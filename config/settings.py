@@ -4,8 +4,10 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
+load_dotenv()
+
+
 BASE_DIR = Path(__file__).resolve().parent.parent
-load_dotenv(dotenv_path=BASE_DIR / ".env")
 
 
 SECRET_KEY = os.getenv("SECRET_KEY")
@@ -23,14 +25,12 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "rest_framework",
-    "rest_framework.authtoken",
-    "rest_framework_simplejwt",
-    "drf_yasg",
     "users",
     "lms",
+    "rest_framework",
+    "rest_framework.authtoken",
     "django_filters",
-    "django_celery_beat",
+    "rest_framework_simplejwt",
 ]
 
 MIDDLEWARE = [
@@ -73,8 +73,8 @@ DATABASES = {
         "NAME": os.getenv("NAME"),
         "USER": os.getenv("DB_USER"),
         "PASSWORD": os.getenv("DB_PASSWORD"),
-        "HOST": os.getenv("HOST"),
-        "PORT": os.getenv("PORT"),
+        "HOST": os.getenv("HOST", "db"),
+        "PORT": os.getenv("PORT", "5432"),
     }
 }
 
@@ -140,13 +140,3 @@ SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
 }
-
-STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY")
-
-CELERY_BROKER_URL = os.getenv("REDIS_URL")
-CELERY_RESULT_BACKEND = os.getenv("REDIS_URL")
-CELERY_ACCEPT_CONTENT = ['json']
-CELERY_TASK_SERIALIZER = 'json'
-CELERY_RESULT_SERIALIZER = 'json'
-CELERY_TIMEZONE = TIME_ZONE
-CELERY_ENABLE_UTC = True

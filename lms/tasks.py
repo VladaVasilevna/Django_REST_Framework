@@ -1,8 +1,8 @@
 from celery import shared_task
-from django.core.mail import send_mail
 from django.conf import settings
-from django.utils.timezone import now
-from .models import CourseSubscription, Course
+from django.core.mail import send_mail
+
+from .models import Course, CourseSubscription
 
 
 @shared_task
@@ -12,7 +12,9 @@ def send_course_update_email(course_id):
     except Course.DoesNotExist:
         return "Course not found"
 
-    subscribers = CourseSubscription.objects.filter(course=course).select_related('user')
+    subscribers = CourseSubscription.objects.filter(course=course).select_related(
+        "user"
+    )
     emails = [sub.user.email for sub in subscribers if sub.user.email]
 
     if not emails:

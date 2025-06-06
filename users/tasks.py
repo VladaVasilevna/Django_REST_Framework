@@ -1,8 +1,9 @@
-from celery import shared_task
 from datetime import timedelta
-from django.utils.timezone import now
+
+from celery import shared_task
 from django.contrib.auth import get_user_model
-from django_celery_beat.models import PeriodicTask, IntervalSchedule
+from django.utils.timezone import now
+from django_celery_beat.models import IntervalSchedule, PeriodicTask
 
 User = get_user_model()
 
