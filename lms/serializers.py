@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Course, Lesson, CourseSubscription
+from .models import Course, CourseSubscription, Lesson
 from .validators import validate_video_url
 
 
@@ -21,7 +21,6 @@ class CourseSerializer(serializers.ModelSerializer):
     lessons = LessonSerializer(many=True, read_only=True, source="lessons")
     is_subscribed = serializers.SerializerMethodField()
 
-
     class Meta:
         model = Course
         fields = "__all__"  # Все поля модели Course
@@ -34,5 +33,7 @@ class CourseSerializer(serializers.ModelSerializer):
         """Проверяет, подписан ли текущий пользователь на курс."""
         request = self.context.get("request")
         if request and request.user.is_authenticated:
-            return CourseSubscription.objects.filter(user=request.user, course=obj).exists()
+            return CourseSubscription.objects.filter(
+                user=request.user, course=obj
+            ).exists()
         return False
