@@ -13,6 +13,7 @@ class Course(models.Model):
     owner = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True
     )
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="Дата обновления")
 
     def __str__(self):
         """Возвращает название курса."""

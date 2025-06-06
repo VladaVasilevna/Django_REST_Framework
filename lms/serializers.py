@@ -18,7 +18,7 @@ class CourseSerializer(serializers.ModelSerializer):
     """Сериализатор для модели Course, включает все поля модели и дополнительные поля."""
 
     lessons_count = serializers.SerializerMethodField()
-    lessons = LessonSerializer(many=True, read_only=True, source="lessons")
+    lessons = LessonSerializer(many=True, read_only=True)
     is_subscribed = serializers.SerializerMethodField()
 
     class Meta:
