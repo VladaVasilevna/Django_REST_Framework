@@ -1,7 +1,8 @@
 from django.urls import path
 
-from .views import (MyTokenObtainPairView, PaymentListView, RegisterView,
-                    UserDetailView, UserListCreateView, UserProfileUpdateView)
+from .views import (MyTokenObtainPairView, PaymentCreateListView,
+                    PaymentListView, RegisterView, UserDetailView,
+                    UserListCreateView, UserProfileUpdateView)
 
 urlpatterns = [
     path("profile/edit/", UserProfileUpdateView.as_view(), name="profile-edit"),
@@ -10,4 +11,5 @@ urlpatterns = [
     path("login/", MyTokenObtainPairView.as_view(), name="login"),
     path("users/", UserListCreateView.as_view(), name="user-list-create"),
     path("users/<int:pk>/", UserDetailView.as_view(), name="user-detail"),
+    path("payment/", PaymentCreateListView.as_view(), name="payment"),
 ]
