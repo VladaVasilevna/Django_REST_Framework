@@ -9,6 +9,30 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_DB: project_drf
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+        CI: true
+        SECRET_KEY: ${{ secrets.SECRET_KEY }}
+        NAME: project_drf
+        DB_USER: postgres
+        DB_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+        PORT: 5432
+        DEBUG: "False"
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -26,9 +50,6 @@ jobs:
       - name: Run tests
         run: |
           python manage.py test
-        env:
-          SECRET_KEY: ${{ secrets.SECRET_KEY }}
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
   deploy:
     needs: test

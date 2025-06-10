@@ -68,6 +68,11 @@ WSGI_APPLICATION = "config.wsgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
+# Для CI/CD окружения используем localhost вместо db
+if os.getenv('CI'):
+    DATABASE_HOST = '127.0.0.1'
+else:
+    DATABASE_HOST = os.getenv('HOST', 'db')
 
 DATABASES = {
     "default": {
@@ -75,7 +80,7 @@ DATABASES = {
         "NAME": os.getenv("NAME", "project_drf"),
         "USER": os.getenv("DB_USER", "postgres"),
         "PASSWORD": os.getenv("DB_PASSWORD", ""),
-        "HOST": os.getenv("HOST", "db"),
+        "HOST": DATABASE_HOST,
         "PORT": os.getenv("PORT", "5432"),
     }
 }
