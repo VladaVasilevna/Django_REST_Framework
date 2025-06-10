@@ -1,8 +1,8 @@
 import stripe
 
-from config.settings import STRIPE_SECRET_KEY
+from django.conf import settings
 
-stripe.api_key = STRIPE_SECRET_KEY  # ключ из .env и settings.py
+stripe.api_key = settings.STRIPE_SECRET_KEY  # ключ из .env и settings.py
 
 
 def create_stripe_product(course):

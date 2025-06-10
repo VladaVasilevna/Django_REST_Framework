@@ -1,3 +1,4 @@
+from django.http import HttpResponse
 from django.contrib import admin
 from django.urls import include, path
 
@@ -18,7 +19,11 @@ schema_view = get_schema_view(
     permission_classes=(permissions.AllowAny,),
 )
 
+def home(request):
+    return HttpResponse("Хорошего Вам дня!")
+
 urlpatterns = [
+    path('', home, name='home'),
     path("admin/", admin.site.urls),
     path("api/", include("lms.urls")),
     path("api/users/", include("users.urls")),
