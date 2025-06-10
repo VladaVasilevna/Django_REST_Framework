@@ -1,4 +1,5 @@
 from django.apps import AppConfig
+import sys
 
 
 class UsersConfig(AppConfig):
@@ -6,6 +7,8 @@ class UsersConfig(AppConfig):
     name = "users"
 
     def ready(self):
-        from users.tasks import setup_periodic_tasks
+        # Вызываем setup_periodic_tasks только если команда runserver или celery
+        if 'runserver' in sys.argv or 'celery' in sys.argv:
+            from users.tasks import setup_periodic_tasks
+            setup_periodic_tasks()
 
-        setup_periodic_tasks()

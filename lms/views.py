@@ -87,10 +87,17 @@ class CourseSubscriptionView(APIView):
     def post(self, request):
         try:
             user = request.user
-            course_id = int(request.data.get("course_id"))
+            course_id = request.data.get("course_id")
             if not course_id:
                 return Response(
                     {"error": "course_id is required"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            try:
+                course_id = int(course_id)
+            except ValueError:
+                return Response(
+                    {"error": "course_id must be an integer"},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
             course = get_object_or_404(Course, pk=course_id)

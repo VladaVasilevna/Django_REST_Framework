@@ -18,7 +18,7 @@ COPY . /app/
 EXPOSE 8000
 
 # По умолчанию запускается Django сервер
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000"]
 
 # Устанавливает переменную окружения, которая гарантирует, что вывод из python будет отправлен прямо в терминал без предварительной буферизации
 ENV PYTHONUNBUFFERED 1
